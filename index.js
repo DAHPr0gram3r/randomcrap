@@ -1,6 +1,5 @@
 const Discord = require("discord.js");
 const fs = require("fs");
-const _ = require("underscore");
 const client = new Discord.Client();
 
 
@@ -15,21 +14,26 @@ function reloadConfig(){
 
   config = JSON.parse(fs.readFileSync("./config.json", "utf8"))
   prefix = config["prefix"]
-
+  blacklist = config["blacklist"]
 }
 
 
-client.login("MzI0MTk4MzE2MjQzOTQzNDI3.DCGhHA.UbWNpoboKEIaAo5fojJ08quqSkw");
+client.login("Um7eDMnooeIuwdm51lGdCOGmW9Pndtax");
 
 client.on("ready", () => {
-  console.log("I am ready!");
   console.log("Current prefix is: " + prefix);
+  console.log("I am ready!");
+  console.log("Config Loaded");
+
 });
 
 client.on("message", (message) => {
   if (message.author.bot) return;
   // Moderator commands
-  if (!message.content.startsWith(prefix)) {
+  else if (!message.content.startsWith(prefix)) {
+    console.log("non command issued " + message.content)
+  }
+    console.log("prefix check")
     let muteRole = message.guild.roles.find("name", "Muted")
     let msg = message.content.toLowerCase().split(" ")
     if (blacklist.some(word => ~msg.indexOf(word.toLowerCase())) ) {
@@ -37,15 +41,11 @@ client.on("message", (message) => {
       message.channel.send(message.member.displayName + " has been muted for using a blacklisted word");
       console.log(message.member.displayName + " has been muted for using blacklisted word")
     }
-    else if (!blacklist.some(word => ~msg.indexOf(word.toLowerCase()))) {
-      console.log("Non command issued: " + message);
-      return;
-    }
 
-  }
-  let
-  if (message.content.startsWith(prefix = "blacklistadd")) {
-    let modRole = message.guild.roles.find("name", "Moderator")
+;
+
+   if (message.content.startsWith(prefix + "blacklistadd")) {
+    let modRole = message.guild.roles.find("name", "Mod")
     let args = message.content.split(" ").slice(1)
     if (!message.member.roles.has(modRole)){
       message.channel.send("Insufficient Permissions.")
@@ -67,8 +67,8 @@ client.on("message", (message) => {
 
     }
   }
-    if (message.content.startsWith(prefix + "setprefix")){
-      let modRole = message.guild.roles.find("name", "Moderator")
+    else if (message.content.startsWith(prefix + "setprefix")){
+      let modRole = message.guild.roles.find("name", "Mod")
       let args = message.content.split(" ").slice(1)
       if (!message.member.roles.has(modRole)){
         message.channel.send("Insufficient Permissions.")
@@ -91,8 +91,8 @@ client.on("message", (message) => {
 
 
 
-  if (message.content.startsWith(prefix + "reloadconfig")){
-    let modRole = message.guild.roles.find("name", "Moderator")
+  else if (message.content.startsWith(prefix + "reloadconfig")){
+    let modRole = message.guild.roles.find("name", "Mod")
     if (!message.member.roles.has(modRole)){
       message.channel.send("Insufficient Permissions.")
     }
@@ -103,8 +103,8 @@ client.on("message", (message) => {
     }
   }
 
-  if (message.content.startsWith(prefix + "mute")){
-    let modRole = message.guild.roles.find("name", "Moderator")
+  else if (message.content.startsWith(prefix + "mute")){
+    let modRole = message.guild.roles.find("name", "Mod")
     let muteRole = message.guild.roles.find("name", "Muted")
     let args = message.content.split(" ").slice(1)
     victim = message.mentions.members.first();
@@ -120,8 +120,8 @@ client.on("message", (message) => {
     }
   }
 
-  if (message.content.startsWith(prefix + "unmute")){
-    let modRole = message.guild.roles.find("name", "Moderator")
+  else if (message.content.startsWith(prefix + "unmute")){
+    let modRole = message.guild.roles.find("name", "Mod")
     let muteRole = message.guild.roles.find("name", "Muted")
     let args = message.content.split(" ").slice(1)
     if (!message.member.roles.has(modRole)){
@@ -131,27 +131,12 @@ client.on("message", (message) => {
       message.channel.send("Argument missing, use command like this: " + prefix + "unmute [mention person you wish to unmute]")
     }
     else {
-      c
       victim.removeRole(muteRole);
       console.log(victim + " has been unuted")
     }
   }
 
-
-//non moderator commands
-  if (message.content.startsWith(prefix + "ping")) {
-    message.channel.send("pong!");
-  }
-
-  if (message.content.startsWith(prefix + "help")){
-
-    message.author.send("This is a list of all commands that are curretly usable:")
-    message.author.send(prefix + "help (Shows this prompt)")
-    message.author.send(prefix + "ping (Makes me say pong)")
-    message.author.send("That is all the non moderator commands use '" + prefix + "modhelp' for the moderator commands")
-  }
-
-  if (message.content.startsWith(prefix + "modhelp")){
+  else if (message.content.startsWith(prefix + "modhelp")){
 
     message.author.send("This is a list of all moderator commands that are curretly usable:")
     message.author.send(prefix + "modhelp (Shows this prompt)")
@@ -162,4 +147,21 @@ client.on("message", (message) => {
     message.author.send(prefix + "unmute [mention person you wish to unmute] (unmutes said person)")
     message.author.send("That is all the moderator commands use '" + prefix + "help' for the non moderator commands")
   }
+
+
+//non moderator commands
+  else if (message.content.startsWith(prefix + "ping")) {
+    message.channel.send("pong!");
+  }
+
+  else if (message.content.startsWith(prefix + "help")){
+    console.log("help")
+
+    message.author.send("This is a list of all commands that are curretly usable:")
+    message.author.send(prefix + "help (Shows this prompt)")
+    message.author.send(prefix + "ping (Makes me say pong)")
+    message.author.send("That is all the non moderator commands use '" + prefix + "modhelp' for the moderator commands")
+  }
+
+
 });
